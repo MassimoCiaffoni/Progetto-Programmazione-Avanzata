@@ -17,3 +17,8 @@ export const User = sequelize.define('users', {
         type: DataTypes.DOUBLE,
     }
 })
+
+
+import {DBConnection} from "../singleton/DBConnection";
+import {DataTypes, Sequelize} from 'sequelize';
+
