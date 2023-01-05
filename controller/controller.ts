@@ -15,8 +15,10 @@ export function controllerErrors(error:any,res: any) {
 }
 
 export async function ChargeUser(req: any, res: any) {
-    try {
-        await User.increment(['tokens'], { by: req.body.value, where: { username: req.body.destination_user } })
+    try {        
+        console.log("Dentro Change User")
+        console.log(req.body)
+        await User.increment(['tokens'], { by: req.body.value, where: { email: req.body.destination_user } })
         let data = { "value": req.body.value };
         const response  = getSuccessMsg(SuccessMsgEnum.CorrectCharge).getMsg();
         res.header("Content-Type", "application/json");

@@ -25,7 +25,7 @@ class BadPayloadFormat implements Msg{
     getMsg(): { status: number,  msg: string } {
         return {
             status: StatusCode.ClientErrorBadRequest,
-            msg: "Bad Request - Formatting Error: user data in payload are bad formatted"
+            msg: "Bad Request - Formatting Error: user data in the JWT payload are bad formatted"
         }
     }
 }

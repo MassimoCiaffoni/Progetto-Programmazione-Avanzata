@@ -9,7 +9,7 @@ services:
         ports:
           - 5432:5432
         volumes:
-          - ./seed/battleshipdb.sql:/docker-entrypoint-initdb.d/battleshipdb.sql          
+          - ./seed/full.sql:/docker-entrypoint-initdb.d/full.sql          
     web-node:
         build: .
         restart: always

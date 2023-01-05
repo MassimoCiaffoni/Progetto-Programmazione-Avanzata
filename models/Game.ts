@@ -1,5 +1,4 @@
 import { User } from './User';
-import { GameState } from './GameState';
 import { Sequelize, DataTypes } from 'sequelize';
 import { DBConnection } from '../singleton/DBConnection';
 

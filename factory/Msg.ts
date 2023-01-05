@@ -8,5 +8,5 @@
  * @returns Object representing the message to be reported in the response body
  */
 export interface Msg {
-    getMsg():{status: number, msg: string};
+    getMsg(data?: any):{status: number, msg: string};
 }
