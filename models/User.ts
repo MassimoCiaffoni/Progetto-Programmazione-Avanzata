@@ -20,7 +20,13 @@ export const User = sequelize.define('users', {
         type: DataTypes.STRING,
         allowNull:false,
         },
+    on_game: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        }
     },
+  
 {
     modelName: 'users',
     timestamps: false,

@@ -67,6 +67,52 @@ class UserNotAdmin implements Msg{
     }
 }
 
+class WrongMode implements Msg{
+    getMsg(): {status: number, msg: string} {
+        return {
+            status: StatusCode.ClientErrorBadRequest,
+            msg: 'This game mode dont exist'
+        }
+    }
+}
+
+
+class SilentError implements Msg{
+    getMsg(): {status: number, msg: string} {
+        return {
+            status: StatusCode.ClientErrorBadRequest,
+            msg: 'You cant play silent mode on singleplayer'
+        }
+    }
+}
+
+class OnGame implements Msg{
+    getMsg(): {status: number, msg: string} {
+        return {
+            status: StatusCode.ClientErrorBadRequest,
+            msg: 'At least on player is already on game'
+        }
+    }
+}
+
+
+class WrongOpponent implements Msg{
+    getMsg(): {status: number, msg: string} {
+        return {
+            status: StatusCode.ClientErrorBadRequest,
+            msg: 'You must specifiy "IA" on opponent field'
+        }
+    }
+}
+class GameNotExists implements Msg{
+    getMsg(): {status: number, msg: string} {
+        return {
+            status: StatusCode.ClientErrorBadRequest,
+            msg: 'Game Not exist'
+        }
+    }
+}
+
 
 export enum ErrorMsgEnum {
     MissingToken,
@@ -76,6 +122,11 @@ export enum ErrorMsgEnum {
     InternalServerError,
     UserNotFound,
     UserNotAdmin,
+    WrongMode,
+    SilentError,
+    OnGame,
+    WrongOpponent,
+    GameNotExists,
 }
 
 
@@ -102,6 +153,21 @@ export function getErrorMsg(type: ErrorMsgEnum): Msg{
             break;
         case ErrorMsgEnum.UserNotAdmin:
             msgerr = new UserNotAdmin();
+            break;
+        case ErrorMsgEnum.WrongMode:
+            msgerr = new WrongMode();
+            break;
+        case ErrorMsgEnum.SilentError:
+            msgerr = new SilentError;
+            break;
+        case ErrorMsgEnum.OnGame:
+            msgerr = new OnGame;
+            break;
+        case ErrorMsgEnum.WrongOpponent:
+            msgerr = new WrongOpponent();
+            break;
+        case ErrorMsgEnum.GameNotExists:
+            msgerr = new GameNotExists();
             break;
     }
     return msgerr;

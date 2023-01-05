@@ -20,9 +20,29 @@ class CorrectCharge implements  Msg{
 }
 
 
+class NewGame implements  Msg{
+    getMsg(): { status: number; msg: string; } {
+        return {
+            status: StatusCode.SuccessOK,
+            msg: "Success OK - Game succesfully created"
+        }
+    }
+}
+
+class CorrectState implements  Msg{
+    getMsg(): { status: number; msg: string; } {
+        return {
+            status: StatusCode.SuccessOK,
+            msg: "Success OK - State succesfully extracted"
+        }
+    }
+}
+
 export enum SuccessMsgEnum {
     AppStarted,
     CorrectCharge,
+    NewGame,
+    CorrectState,
 }
 
 
@@ -35,6 +55,12 @@ export function getSuccessMsg(type: SuccessMsgEnum): Msg{
         case SuccessMsgEnum.CorrectCharge:
             corrmsg = new CorrectCharge();
             break;  
+        case SuccessMsgEnum.NewGame:
+            corrmsg = new NewGame();
+            break;
+        case SuccessMsgEnum.CorrectState:
+            corrmsg = new CorrectState();
+            break;
     }
     return corrmsg;
 }

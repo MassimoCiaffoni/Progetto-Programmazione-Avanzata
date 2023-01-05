@@ -27,3 +27,14 @@ export const checkAdmin = [
     valMiddleware.ChargeUserVal,
     errorHandler.errorHandler
 ]
+
+export const checkGame = [
+    valMiddleware.GameVal,
+    valMiddleware.PlayersVal,
+    errorHandler.errorHandler
+]
+
+export const checkGameExistence = [
+    valMiddleware.GameExistence,
+    errorHandler.errorHandler
+]

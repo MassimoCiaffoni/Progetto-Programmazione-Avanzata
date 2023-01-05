@@ -1,6 +1,6 @@
 FROM node:lts-stretch-slim
 WORKDIR /usr/src/app
-COPY . .
+COPY  . .
 RUN npm install
 RUN npm install -g typescript
 RUN tsc 
