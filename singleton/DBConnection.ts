@@ -16,11 +16,7 @@ export class DBConnection {
 		});
 	}
 
-<<<<<<< HEAD
-    public getInstance(): Sequelize {
-=======
-    public getIstance(): Sequelize {
->>>>>>> c3f2c1a2f23a2cb2a68d992e8eec64315148dc5c
+    public static getInstance(): Sequelize {
         if (!DBConnection.instance) {
             DBConnection.instance = new DBConnection();
         }
