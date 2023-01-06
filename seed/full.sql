@@ -3,13 +3,16 @@ CREATE DATABASE battleship;
 
 CREATE TABLE games (
   game_id SERIAL PRIMARY KEY,
-  creator varchar(40) NOT NULL,
-  opponent varchar(40) DEFAULT NULL,
+  creator json  NOT NULL DEFAULT '{}',
+  opponent json NOT NULL DEFAULT '{}',
   game_type varchar(25) NOT NULL,
-  silence_mode boolean DEFAULT 'false',
-  state varchar(40) NOT NULL,
-  winner varchar(40) NOT NULL,
-  grid_size int NOT NULL
+  silent_mode boolean DEFAULT 'false',
+  state varchar(40) NOT NULL DEFAULT 'Closed',
+  turn varchar(40) NOT NULL DEFAULT 'Not Setted',
+  winner varchar(40) NOT NULL DEFAULT 'Game not finished',
+  grid_size int NOT NULL,
+  creator_grid json NOT NULL DEFAULT '{}',
+  opponent_grid json NOT NULL DEFAULT '{}'
 );
 
 
@@ -27,5 +30,6 @@ INSERT INTO users (email, tokens, rule)
   VALUES 
   ('adrianomancini@mail.it',10,'user'),
   ('massimociaffoni@mail.it',10,'admin'),
-  ('opponent@mail.it',10,'user');
+  ('opponent@mail.it',10,'user'),
+  ('usernotokens@mail.it',0.34,'user');
 

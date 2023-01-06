@@ -2,7 +2,6 @@ import * as UserClass from "../models/User";
 import { Sequelize, DataTypes } from 'sequelize';
 import { DBConnection } from '../singleton/DBConnection';
 import { ErrorMsgEnum, getErrorMsg } from '../factory/ErrMsg';
-import { Grid } from "../utils/Grid";
 
 const sequelize: Sequelize = DBConnection.getInstance()
 
@@ -13,25 +12,31 @@ export const Game = sequelize.define('games',{
             autoIncrement: true,
         },
         creator: {
-            type: DataTypes.STRING,
+            type: DataTypes.JSON,
             allowNull:false,
+            defaultValue: {}
         },
         opponent: {
-            type: DataTypes.STRING,
-            defaultValue: null,
+            type: DataTypes.JSON,
+            defaultValue: {}
         },
         game_type: {
             type: DataTypes.STRING,
             allowNull:false,
         },
-        silence_mode: {
-            type: DataTypes.STRING,
+        silent_mode: {
+            type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
         state: {
             type: DataTypes.STRING,
             allowNull:false,
             defaultValue: "Closed"
+        },
+        turn: {
+            type: DataTypes.STRING,
+            allowNull:false,
+            defaultValue: "Not setted"
         },
         winner: {
             type: DataTypes.STRING,
@@ -40,6 +45,16 @@ export const Game = sequelize.define('games',{
         grid_size: {
             type: DataTypes.INTEGER,
             allowNull:false,
+        },
+        creator_grid: {
+            type: DataTypes.JSON,
+            allowNull: false,
+            defaultValue: {}
+        },
+        opponent_grid: {
+            type: DataTypes.JSON,
+            allowNull: false,
+            defaultValue: {}
         }
     },
     {
@@ -49,8 +64,9 @@ export const Game = sequelize.define('games',{
     hooks:{
         afterCreate: async (record:any, options) => {
             await record.update({ 'state': 'Open' });
-            }
+            await record.update({'turn': record.creator.name});
         }
+    }
 })
 
 export async function CreateGameVal(options:any):Promise<any>{
@@ -79,7 +95,6 @@ export async function CreateGameVal(options:any):Promise<any>{
         else return false;
     });
     if(!playertwo) return ErrorMsgEnum.UserNotFound;
-    //const ships = await CheckShipsNumber()
     return true
     }
     else {

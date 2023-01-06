@@ -11,6 +11,8 @@ import * as valMiddleware from './middlewareVal';
  * must be checked for the HTTP request to reach the controller
  */
 
+// IMPORTANTE IL PRIMO CONTROLLO DEVE SETTARE L'USER
+
  export const jwt = [
     JwtMiddleware.checkHeader,
     JwtMiddleware.checkToken,
@@ -28,13 +30,26 @@ export const checkAdmin = [
     errorHandler.errorHandler
 ]
 
-export const checkGame = [
+export const checkGameCreation = [
     valMiddleware.GameVal,
+    valMiddleware.PlaceShipVal,
     valMiddleware.PlayersVal,
+    valMiddleware.PlayerToken,
     errorHandler.errorHandler
 ]
 
 export const checkGameExistence = [
     valMiddleware.GameExistence,
+    errorHandler.errorHandler
+]
+
+export const checkAttack = [
+    valMiddleware.GameExistence,
+    valMiddleware.CheckGameState,
+    valMiddleware.TurnVal,
+    valMiddleware.CheckUserOnGame,
+    valMiddleware.CheckMode,
+    valMiddleware.CoordinatesVal,
+    valMiddleware.AttackAlreadyDone,
     errorHandler.errorHandler
 ]

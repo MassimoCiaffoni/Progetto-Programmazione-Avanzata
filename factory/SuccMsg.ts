@@ -38,11 +38,23 @@ class CorrectState implements  Msg{
     }
 }
 
+class Winner implements  Msg{
+    getMsg(): { status: number; msg: string; } {
+        return {
+            status: StatusCode.SuccessOK,
+            msg: "You have won the game!"
+        }
+    }
+}
+
+
+
 export enum SuccessMsgEnum {
     AppStarted,
     CorrectCharge,
     NewGame,
     CorrectState,
+    Winner,
 }
 
 
@@ -60,6 +72,9 @@ export function getSuccessMsg(type: SuccessMsgEnum): Msg{
             break;
         case SuccessMsgEnum.CorrectState:
             corrmsg = new CorrectState();
+            break;
+        case SuccessMsgEnum.Winner:
+            corrmsg = new Winner();
             break;
     }
     return corrmsg;
