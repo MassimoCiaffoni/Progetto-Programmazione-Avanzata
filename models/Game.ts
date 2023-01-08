@@ -28,6 +28,14 @@ export const Game = sequelize.define('games',{
             type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
+        creator_silent: {
+            type: DataTypes.INTEGER,
+            allowNull:false,
+        },
+        opponent_silent: {
+            type: DataTypes.INTEGER,
+            allowNull:false,
+        },
         state: {
             type: DataTypes.STRING,
             allowNull:false,
@@ -55,6 +63,10 @@ export const Game = sequelize.define('games',{
             type: DataTypes.JSON,
             allowNull: false,
             defaultValue: {}
+        },
+        moves: {
+            type: DataTypes.ARRAY(DataTypes.JSON),
+            allowNull: true,
         }
     },
     {
@@ -62,7 +74,7 @@ export const Game = sequelize.define('games',{
     timestamps: false,
     freezeTableName: true,
     hooks:{
-        afterCreate: async (record:any, options) => {
+        afterCreate: async (record:any, options: any) => {
             await record.update({ 'state': 'Open' });
             await record.update({'turn': record.creator.name});
         }
@@ -74,7 +86,7 @@ export async function CreateGameVal(options:any):Promise<any>{
         if (options.silent_mode == true){
             return ErrorMsgEnum.SilentError;
         }
-        if (options.opponent!=="IA"){
+        if (options.opponent!=="AI"){
             return ErrorMsgEnum.WrongOpponent
         }
         const playerone = await UserClass.CheckUser(options.creator).then((user) => { 
@@ -85,21 +97,24 @@ export async function CreateGameVal(options:any):Promise<any>{
         return true;
     }
     else if (options.game_type=="multiplayer"){
-    const playerone = await UserClass.CheckUser(options.creator).then((user) => { 
-        if(user) return user;
-        else return false;
-    });
-    if(!playerone) return ErrorMsgEnum.UserNotFound;
-    const playertwo = await UserClass.CheckUser(options.opponent).then((user) => { 
-        if(user) return user;
-        else return false;
-    });
-    if(!playertwo) return ErrorMsgEnum.UserNotFound;
-    return true
-    }
-    else {
-        return ErrorMsgEnum.WrongMode;
-    }
+        if (options.opponent=="AI"){
+            return ErrorMsgEnum.WrongOpponent
+        }
+        const playerone = await UserClass.CheckUser(options.creator).then((user) => { 
+            if(user) return user;
+            else return false;
+        });
+        if(!playerone) return ErrorMsgEnum.UserNotFound;
+        const playertwo = await UserClass.CheckUser(options.opponent).then((user) => { 
+            if(user) return user;
+            else return false;
+        });
+        if(!playertwo) return ErrorMsgEnum.UserNotFound;
+        return true
+        }
+        else {
+            return ErrorMsgEnum.WrongMode;
+        }
 }
 
 

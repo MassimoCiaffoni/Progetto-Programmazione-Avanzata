@@ -17,31 +17,40 @@ app.use(express.json());
 app.use(CoR.jwt);
 app.use(CoR.jwtPayload)
 
-//POST route to charge token to specified user
+//POST route to charge token to specified user (admin route)
 app.post('/charge',CoR.checkAdmin, (req: any, res: any) => {
     controller.ChargeUser(req,res);
 });
 
+
+//POST route to create a new game
 app.post('/creategame',CoR.checkGameCreation, (req: any, res: any) => {
     controller.CreateNewGame(req,res);
 });
 
+//POST route to try an attack 
 app.post('/:id/attack',CoR.checkAttack, (req: any, res: any) => {
-    console.log("Passaggi Effettuati")
+    console.log("Controlli Terminati")
     controller.UseMove(req,res);
 });
 
+
+//GET basic route
 app.get('/', (req: any,res: any) => {
     const res_msg = getSuccessMsg(SuccessMsgEnum.AppStarted).getMsg();   
     res.status(res_msg.status).json({Message:res_msg.msg})
 });
 
+
+//GET route to catch game status
 app.get('/:id/state',CoR.checkGameExistence, (req: any,res: any) => {
-    controller.CheckGameStatus(req,res);
+    controller.GetGameStatus(req,res);
 });
 
+
+//GET route to get game moves 
 app.get('/:id/history',CoR.checkGameExistence, (req: any,res: any) => {
-    controller.CheckGameStatus(req,res);
+    controller.GetHistory(req,res);
 });
 
 app.listen(PORT, HOST);

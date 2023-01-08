@@ -2,14 +2,15 @@ import * as UserClass from "../models/User";
 import {getErrorMsg,ErrorMsgEnum } from "../factory/ErrMsg";
 import * as GameClass from "../models/Game";
 import * as Grid from '../utils/Grid';
-import { isValidAttack, isGameFinished } from '../utils/Grid';
-import { Error } from "sequelize";
+import { Sequelize } from "sequelize";
+
+
 
 
 export async function ChargeUserVal(req:any,res:any,next:any)  {
     try{
         req.body.username_admin = req.user;
-        if(typeof req.body.destination_user =="string" && (Number.isInteger(req.body.value)) && req.body.value>0 ){
+        if(typeof req.body.destination_user =="string" && typeof req.body.value=="number" && req.body.value>0 ){
             let responseVal = await UserClass.TokenChargeVal(req.body);
             responseVal === true ? next() : next(responseVal)
         }else{
@@ -45,8 +46,6 @@ export async function PlayersVal(req:any,res:any,next:any) {
             attributes : ['on_game'],
             where: {email:req.body.opponent}
         });
-        console.log(creatorflag?.toJSON())
-        console.log(opponentflag?.toJSON())
         if (creatorflag?.toJSON().on_game || opponentflag?.toJSON().on_game){
             const new_err_msg = getErrorMsg(ErrorMsgEnum.OnGame).getMsg();
             res.status(new_err_msg.status).json(new_err_msg);
@@ -60,7 +59,6 @@ export async function PlayersVal(req:any,res:any,next:any) {
             attributes : ['on_game'],
             where: {email:req.body.creator}
         });
-        console.log(creatorflag?.toJSON())
         if (creatorflag?.toJSON().on_game){
             const new_err_msg = getErrorMsg(ErrorMsgEnum.OnGame).getMsg();
             res.status(new_err_msg.status).json(new_err_msg);
@@ -90,10 +88,10 @@ export async function PlayerToken(req:any,res:any,next:any) {
 }
  
 export async function GameExistence(req:any,res:any,next:any) {
+    console.log("Dentro Game Existence")
     let itExist = await GameClass.Game.findOne({
         where: {game_id: req.params.id}
     });
-    console.log(itExist)
     if (itExist){
         next()
     }
@@ -115,13 +113,12 @@ export async function PlaceShipVal(req:any,res:any,next:any) {
 
 
 export async function CoordinatesVal(req:any,res:any,next:any) {
-    console.log("Dentro Coordinates Val")
     let x: number = req.body.x
     let y: number = req.body.y
     await GameClass.Game.findOne({
         attributes : ['grid_size'],
         where: {game_id: req.params.id}
-    }).then((game) =>{
+    }).then((game: any) =>{
         let size: number =game.grid_size;
         if (!Grid.isValidAttack(size,x,y)){
             next(ErrorMsgEnum.CoordinatesNotValid)
@@ -134,14 +131,10 @@ export async function CoordinatesVal(req:any,res:any,next:any) {
     
 }
 export async function TurnVal(req:any,res:any,next:any) {
-    console.log("Dentro Turn Val")
-    req.body.player = req.user.email;
     await GameClass.Game.findOne({
         attributes : ['turn'],
         where: {game_id:req.params.id}
-    }).then((game)=>{
-        console.log(req.body.player)
-        console.log(game.turn)
+    }).then((game: any)=>{
         if(game.turn == req.body.player){
             next()
         }
@@ -153,7 +146,7 @@ export async function TurnVal(req:any,res:any,next:any) {
 }
 
 export async function CheckUserOnGame(req:any,res:any,next:any) {
-    console.log("Dentro CheckUserOnGame")
+    req.body.player = req.user.email;
     let game= await GameClass.Game.findOne({
         attributes: ['creator', 'opponent'],
         where: {game_id: req.params.id}
@@ -168,11 +161,10 @@ export async function CheckUserOnGame(req:any,res:any,next:any) {
 
 
 export async function CheckMode(req:any,res:any,next:any) {
-    console.log("Dentro Check Mode")
     console.log(req.params.id)
     await GameClass.Game.findOne({
         where: {game_id: req.params.id}
-    }).then((game)=>{
+    }).then((game: any)=>{
         if (game.game_type == 'singleplayer' && req.body.silence == true){
             next(ErrorMsgEnum.SilentError)
         }
@@ -183,14 +175,18 @@ export async function CheckMode(req:any,res:any,next:any) {
             let current_creator= game.creator.name;
             let current_opponent= game.opponent.name;
             if(req.body.player==current_creator){
-                if(game.creator.silence >0)
+                if(game.creator_silent >0){
+                    GameClass.Game.decrement(['creator_silent'],{by:1, where: {game_id: req.params.id}});
+                    console.log("Silent decrementato")
                     next()
+                }
                 else{
                     next(ErrorMsgEnum.SilentFinished)
                 }
             }
             else if(req.body.player==current_opponent){
-                if(game.opponent.silence >0){
+                if(game.opponent_silent >0){
+                    GameClass.Game.decrement(['opponent_silent'],{by:1, where: {game_id: req.params.id}});
                     next()
                 }
                 else{
@@ -208,7 +204,7 @@ export async function CheckMode(req:any,res:any,next:any) {
 export async function AttackAlreadyDone(req:any,res:any,next:any) {
     await GameClass.Game.findOne({
         where: {game_id: req.params.id}
-    }).then((game)=>{
+    }).then((game: any)=>{
         if(req.body.player==game.creator.name){
             let opponentboard=game.opponent_grid.board;
             console.log(opponentboard);
@@ -237,7 +233,7 @@ export async function AttackAlreadyDone(req:any,res:any,next:any) {
 export async function CheckGameState(req:any,res:any,next:any) {
     await GameClass.Game.findOne({
         where: {game_id: req.params.id}
-    }).then((game)=>{
+    }).then((game: any)=>{
         if(game.state == "Finished"){
             next(ErrorMsgEnum.GameFinished)
         }

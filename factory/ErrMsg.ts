@@ -30,6 +30,15 @@ class BadPayloadFormat implements Msg{
     }
 }
 
+class BadBodyFormat implements Msg{
+    getMsg(): { status: number,  msg: string } {
+        return {
+            status: StatusCode.ClientErrorBadRequest,
+            msg: "Bad Request - Formatting Error: data in your body request are bad formatted"
+        }
+    }
+}
+
 class InvalidToken implements Msg{
     getMsg(): { status: number,  msg: string } {
         return {
@@ -77,15 +86,6 @@ class WrongMode implements Msg{
 }
 
 
-class SilentError implements Msg{
-    getMsg(): {status: number, msg: string} {
-        return {
-            status: StatusCode.ClientErrorBadRequest,
-            msg: 'You cant play silent mode on singleplayer'
-        }
-    }
-}
-
 class OnGame implements Msg{
     getMsg(): {status: number, msg: string} {
         return {
@@ -100,7 +100,7 @@ class WrongOpponent implements Msg{
     getMsg(): {status: number, msg: string} {
         return {
             status: StatusCode.ClientErrorBadRequest,
-            msg: 'You must specifiy "IA" on opponent field'
+            msg: 'You cant specify this opponent on this game mode'
         }
     }
 }
@@ -161,7 +161,16 @@ class SilentFinished implements Msg{
     getMsg(): {status: number, msg: string} {
         return {
             status: StatusCode.ClientErrorBadRequest,
-            msg: 'You have finished silences moves'
+            msg: 'You have finished your silences moves'
+        }
+    }
+}
+
+class SilentError implements Msg{
+    getMsg(): {status: number, msg: string} {
+        return {
+            status: StatusCode.ClientErrorBadRequest,
+            msg: 'You cant play silent mode on singleplayer'
         }
     }
 }
@@ -171,6 +180,15 @@ class SilentModeNotActivated implements Msg{
         return {
             status: StatusCode.ClientErrorBadRequest,
             msg: 'This game is not in silent mode'
+        }
+    }
+}
+
+class SilentIsNotZero implements Msg{
+    getMsg(): {status: number, msg: string} {
+        return {
+            status: StatusCode.ClientErrorBadRequest,
+            msg: 'You must specify silences at 0 if you wanna create game with this options'
         }
     }
 }
@@ -197,12 +215,12 @@ export enum ErrorMsgEnum {
     MissingToken,
     NoHeader,
     InvalidToken,
+    BadBodyFormat,
     BadPayloadFormat,
     InternalServerError,
     UserNotFound,
     UserNotAdmin,
     WrongMode,
-    SilentError,
     OnGame,
     WrongOpponent,
     GameNotExists,
@@ -211,8 +229,10 @@ export enum ErrorMsgEnum {
     CoordinatesNotValid,
     NotTurn,
     NotCurrentPlayer,
+    SilentError,
     SilentFinished,
     SilentModeNotActivated,
+    SilentIsNotZero,
     AlreadyHitError,
     GameFinished,
 }
@@ -230,6 +250,9 @@ export function getErrorMsg(type: ErrorMsgEnum): Msg{
         case ErrorMsgEnum.InvalidToken:
             msgerr = new InvalidToken();
             break;
+        case ErrorMsgEnum.BadBodyFormat:
+            msgerr = new BadBodyFormat();
+            break;
         case ErrorMsgEnum.BadPayloadFormat:
             msgerr = new BadPayloadFormat();
             break;
@@ -244,9 +267,6 @@ export function getErrorMsg(type: ErrorMsgEnum): Msg{
             break;
         case ErrorMsgEnum.WrongMode:
             msgerr = new WrongMode();
-            break;
-        case ErrorMsgEnum.SilentError:
-            msgerr = new SilentError;
             break;
         case ErrorMsgEnum.OnGame:
             msgerr = new OnGame;
@@ -272,11 +292,17 @@ export function getErrorMsg(type: ErrorMsgEnum): Msg{
         case ErrorMsgEnum.NotCurrentPlayer:
             msgerr = new NotCurrentPlayer();
             break;
+        case ErrorMsgEnum.SilentError:
+            msgerr = new SilentError;
+            break;
         case ErrorMsgEnum.SilentFinished:
             msgerr = new SilentFinished();
             break;
         case ErrorMsgEnum.SilentModeNotActivated:
             msgerr = new SilentModeNotActivated();
+            break;
+        case ErrorMsgEnum.SilentIsNotZero:
+            msgerr = new SilentIsNotZero();
             break;
         case ErrorMsgEnum.AlreadyHitError:
             msgerr = new AlreadyHitError();
