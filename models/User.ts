@@ -35,9 +35,9 @@ export const User = sequelize.define('users', {
 
 
 /**
- * Verify User 
- * @param email mail of player
- * @returns  result
+ * Verify User.
+ * @param email mail of the player.
+ * @returns  result.
  */
 export async function CheckUser(email:string):Promise<any> {
     let result:any;
@@ -49,6 +49,11 @@ export async function CheckUser(email:string):Promise<any> {
     return result;
 };
 
+/**
+ * Check if the users exists and the request is done by the admin.
+ * @param chargedata body of the request.
+ * @returns boolean value.
+ */
 export async function TokenChargeVal(chargedata:any): Promise<any> {
     const admin= await CheckUser(chargedata.username_admin.email).then((user)=>{
         if(user) return user;

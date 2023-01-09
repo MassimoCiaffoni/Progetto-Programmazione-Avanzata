@@ -44,8 +44,7 @@ export async function CreateNewGame(req: any, res: any): Promise<void>{
 
 export async function ChargeUser(req: any, res: any) {
     try {        
-        await User.increment(['tokens'], { by: req.body.value, where: { email: req.body.destination_user } })
-        let data = { "value": req.body.value };
+        User.increment(['tokens'], { by: req.body.value, where: { email: req.body.destination_user } })
         const response  = getSuccessMsg(SuccessMsgEnum.CorrectCharge).getMsg();
         res.header("Content-Type", "application/json");
         res.status(response.status).json({Message: response, Value:req.body.value})
@@ -113,11 +112,13 @@ export async function UseMove(req: any, res: any) {
                     Grid.markHit(req.body.x, req.body.y,game.opponent_grid.board);
                     GameClass.Game.update({opponent_grid: game.opponent_grid},{where: {game_id: req.params.id}})
                     GameClass.Game.update({turn: game.opponent.name},{where: {game_id: req.params.id}})
-                    if(Grid.checkShip(req.body.x, req.body.y,game.opponent_grid.board)){
-                        GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:req.body.x,y:req.body.y,player:game.creator.name,hashitted: true}))},
-                            {where: {game_id: req.params.id}});
+                    if(Grid.checkShip(req.body.x, req.body.y,game.opponent_grid.board)){                       
                         if (Grid.isGameFinished(game.opponent_grid.board)){
                             // inserire update dello storico delle mosse oscurate dal silence
+                            let final_moves=Grid.ChangeSilentMoves(game.moves);
+                            GameClass.Game.update({moves: final_moves},{where: {game_id: req.params.id}})  
+                            GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:req.body.x,y:req.body.y,player:game.creator.name,hashitted: true}))},
+                                {where: {game_id: req.params.id}});
                             GameClass.Game.update({state: 'Finished', winner: game.creator.name},{where: {game_id: req.params.id}})
                             UserClass.User.update({on_game: false},{where: {email: game.creator.name}})
                             UserClass.User.update({on_game: false},{where: {email: game.opponent.name}})
@@ -127,12 +128,16 @@ export async function UseMove(req: any, res: any) {
                         }
                         else{
                             if(game.opponent.silent_use){
+                                GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:req.body.x,y:req.body.y,player:game.creator.name,hashitted: "silence",raw: true}))},
+                                    {where: {game_id: req.params.id}});
                                 GameClass.Game.update({opponent: {name: game.opponent.name,silent_use: false}},{where: {game_id: req.params.id}})
                                 const response  = getSuccessMsg(SuccessMsgEnum.CorrectCharge).getMsg(); //modifica con messaggio corretto ship silent                        
                                 res.header("Content-Type", "application/json");
                                 res.status(response.status).json({Message: "Enemy Silent Used", Value:req.body.value})
                             }
                             else{
+                                GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:req.body.x,y:req.body.y,player:game.creator.name,hashitted: true}))},
+                                    {where: {game_id: req.params.id}});
                                 const response  = getSuccessMsg(SuccessMsgEnum.CorrectCharge).getMsg(); //modifica con messaggio corretto ship hitted                          
                                 res.header("Content-Type", "application/json");
                                 res.status(response.status).json({Message: "Ship hitted", Value:req.body.value})
@@ -142,6 +147,8 @@ export async function UseMove(req: any, res: any) {
                     else{
                         if(game.opponent.silent_use){
                             // INSERIRE MOSSA ANONIMA NELL'ARRAY
+                            GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:req.body.x,y:req.body.y,player:game.creator.name,hashitted: "silence",raw:false}))},
+                                {where: {game_id: req.params.id}});
                             GameClass.Game.update({opponent: {name: game.opponent.name,silent_use: false}},{where: {game_id: req.params.id}})
                             const response  = getSuccessMsg(SuccessMsgEnum.CorrectCharge).getMsg(); //modifica con messaggio corretto ship silent                        
                             res.header("Content-Type", "application/json");
@@ -164,9 +171,12 @@ export async function UseMove(req: any, res: any) {
                     GameClass.Game.update({creator_grid: game.creator_grid},{where: {game_id: req.params.id}})
                     GameClass.Game.update({turn: game.creator.name},{where: {game_id: req.params.id}})
                     if(Grid.checkShip(req.body.x, req.body.y,game.creator_grid.board)){
-                        GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:req.body.x,y:req.body.y,player:game.opponent.name,hashitted: true}))},
-                            {where: {game_id: req.params.id}});
-                        if (Grid.isGameFinished(game.creator_grid.board)){                         
+                        if (Grid.isGameFinished(game.creator_grid.board)){     
+                            GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:req.body.x,y:req.body.y,player:game.opponent.name,hashitted: true}))},
+                                {where: {game_id: req.params.id}});  
+                            //inserisci funzione modifica hit del silence
+                            let final_moves=Grid.ChangeSilentMoves(game.moves);
+                            GameClass.Game.update({moves: final_moves},{where: {game_id: req.params.id}})                 
                             GameClass.Game.update({state: 'Finished', winner: game.opponent.name},{where: {game_id: req.params.id}})
                             UserClass.User.update({on_game: false},{where: {email: game.creator.name}})
                             UserClass.User.update({on_game: false},{where: {email: game.opponent.name}})
@@ -176,12 +186,16 @@ export async function UseMove(req: any, res: any) {
                         }
                         else{
                             if(game.creator.silent_use==true){
+                                GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:req.body.x,y:req.body.y,player:game.opponent.name,hashitted: "silence",raw:true}))},
+                                    {where: {game_id: req.params.id}});
                                 GameClass.Game.update({creator: {name: game.creator.name,silent_use: false}},{where: {game_id: req.params.id}})
                                 const response  = getSuccessMsg(SuccessMsgEnum.CorrectCharge).getMsg(); //modifica con messaggio corretto ship silent                        
                                 res.header("Content-Type", "application/json");
                                 res.status(response.status).json({Message: "Enemy Silent Used", Value:req.body.value})
                             }
                             else{
+                                GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:req.body.x,y:req.body.y,player:game.opponent.name,hashitted: true}))},
+                                    {where: {game_id: req.params.id}});
                                 const response  = getSuccessMsg(SuccessMsgEnum.CorrectCharge).getMsg();
                                 res.header("Content-Type", "application/json");
                                 res.status(response.status).json({Message: "Ship hitted", Value:req.body.value})
@@ -190,6 +204,8 @@ export async function UseMove(req: any, res: any) {
                     }
                     else{
                         if(game.creator.silent_use==true){
+                            GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:req.body.x,y:req.body.y,player:game.opponent.name,hashitted: "silence",raw:false}))},
+                                {where: {game_id: req.params.id}});
                             GameClass.Game.update({creator: {name: game.creator.name,silent_use: false}},{where: {game_id: req.params.id}})
                             const response  = getSuccessMsg(SuccessMsgEnum.CorrectCharge).getMsg(); //modifica con messaggio corretto ship silent                        
                             res.header("Content-Type", "application/json");
