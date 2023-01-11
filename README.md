@@ -6,8 +6,7 @@ L'obiettivo del progetto consiste nella realizzazione di un backend che consente
 
 - § 0.015 per ogni mossa da parte degli utenti (anche IA).
 
-Il modello può essere creato se c’è credito sufficiente ad esaudire la richiesta (se il credito durante la partita scende sotto lo zero si può continuare comunque).
-In particolare, il sistema ha lo scopo di implementare le seguenti funzionalità. Prevedere infine una rotta per l’utente con ruolo admin che consenta di effettuare la ricarica per un utente fornendo la mail ed il nuovo “credito” (sempre mediante JWT).
+Il modello può essere creato se c’è credito sufficiente ad esaudire la richiesta (se il credito durante la partita scende sotto lo zero si può continuare comunque). Prevedere infine una rotta per l’utente con ruolo admin che consenta di effettuare la ricarica per un utente fornendo la mail ed il nuovo “credito” (sempre mediante JWT).
 
 Le funzionalità da sviluppare sono riassunte nella seguente tabella:
 
