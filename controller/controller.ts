@@ -8,6 +8,7 @@ import { SuccessMsgEnum, getSuccessMsg } from "../factory/SuccMsg";
 import * as GameClass from "../models/Game";
 import * as UserClass from "../models/User";
 import * as Grid from "../utils/Grid";
+import { SinglePlayerEnum, MultiPlayerEnum } from "../utils/Modes";
 
 
 const sequelize: Sequelize = DBConnection.getInstance();
@@ -58,14 +59,14 @@ export async function ChargeUser(req: any, res: any) {
 export async function GetGameStatus(req: any, res:any){
     const id = req.params.id;
     try {
-    let state = await GameClass.Game.findOne({
-        attributes : ['state','game_type','winner','turn'],
-        where: {game_id: id}
-    });
-    console.log(state?.toJSON())
-    const response  = getSuccessMsg(SuccessMsgEnum.CorrectState).getMsg();
-    res.header("Content-Type", "application/json");
-    res.status(response.status).json({Message: response, Value:state?.toJSON()})
+        await GameClass.Game.findOne({
+            attributes : ['state','game_type','winner','turn'],
+            where: {game_id: id}
+        }).then((game)=>{
+            const response  = getSuccessMsg(SuccessMsgEnum.CorrectState).getMsg();
+            res.header("Content-Type", "application/json");
+            res.status(response.status).json({Message: response, Value:game})
+        });
     }
     catch(error) {
         console.log(error)
@@ -103,7 +104,7 @@ export async function UseMove(req: any, res: any) {
         let silence = req.body.silence;
         User.decrement(['tokens'], {by: 0.015, where: {email: req.body.player}}); 
         await GameClass.Game.findOne({where: {game_id: req.params.id}}).then((game: any)=>{
-            if(game.game_type=="multiplayer"){
+            if(game.game_type in MultiPlayerEnum){
                 if (req.body.player == game.creator.name){
                     if (silence){
                         console.log("Cambio silent move")
@@ -221,7 +222,7 @@ export async function UseMove(req: any, res: any) {
                     }
                 }
             }
-            if(game.game_type=="singleplayer"){
+            if(game.game_type in SinglePlayerEnum){
                 if (req.body.player == game.creator.name){
                     Grid.markHit(req.body.x, req.body.y,game.opponent_grid.board);
                     GameClass.Game.update({opponent_grid: game.opponent_grid},{where: {game_id: req.params.id}})
