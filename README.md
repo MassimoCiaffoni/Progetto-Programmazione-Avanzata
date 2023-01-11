@@ -28,11 +28,11 @@ Le funzionalità da sviluppare sono riassunte nella seguente tabella:
 #### Eseguire una nuova mossa in una partita
 ![Attack](images/2.Attack.png)
 #### Visualizza lo stato di una partita
-![GameState](images/GameState.png)
+![GameState](images/3.GameState.png)
 #### Visualizza storico delle mosse in una partita
-![GameHistory](images/GameHistory.png)
+![GameHistory](images/4.GameHistory.png)
 #### Ricarica token all'utente
-![ChargeUser](images/ChargeUser.png)
+![ChargeUser](images/5.ChargeUser.png)
 
 ## Richieste
 |Rotta| Tipo |Ruolo| Autenticazione JWT	|
