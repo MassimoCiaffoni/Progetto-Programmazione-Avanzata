@@ -14,3 +14,6 @@ In particolare, il sistema ha lo scopo di implementare le seguenti funzionalità
 ## Diagrammi UML
 ### Diagrammi dei casi d'uso
 ![use_case_diagram](images/Use Cases.png)
+### Diagrammi delle sequenze
+#### Creare un nuovo game
+![CreateGame](images/1.CreateGame.png)
