@@ -1,0 +1,234 @@
+{
+	"info": {
+		"_postman_id": "f4b9690e-6da6-4cb3-af1a-0afdf78a474b",
+		"name": "Battleship",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25076542"
+	},
+	"item": [
+		{
+			"name": "Base",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoidXNlciIsImVtYWlsIjoiYWRyaWFub21hbmNpbmlAbWFpbC5pdCIsImlhdCI6MTUxNjIzOTAyMn0.eX5x1ww9oakJyexsd87nptnrXM6OsLZIv2UhciCtwZo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "localhost:8080/",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GameState",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoidXNlciIsImVtYWlsIjoiYWRyaWFub21hbmNpbmlAbWFpbC5pdCIsImlhdCI6MTUxNjIzOTAyMn0.eX5x1ww9oakJyexsd87nptnrXM6OsLZIv2UhciCtwZo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/:id/state",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						":id",
+						"state"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "1",
+							"description": "ID of the game"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GameHistory",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoidXNlciIsImVtYWlsIjoiYWRyaWFub21hbmNpbmlAbWFpbC5pdCIsImlhdCI6MTUxNjIzOTAyMn0.eX5x1ww9oakJyexsd87nptnrXM6OsLZIv2UhciCtwZo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/:id/history",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						":id",
+						"history"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ChargeUser",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4iLCJlbWFpbCI6Im1hc3NpbW9jaWFmZm9uaUBtYWlsLml0IiwiaWF0IjoxNTE2MjM5MDIyfQ.EUJ0StYY9eRmsGe1O6lRTU7n80ZHpHwlIcVAA-ORzDQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"destination_user\": \"usernotokens@mail.it\",\r\n    \"value\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/charge",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"charge"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateGame",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoidXNlciIsImVtYWlsIjoiYWRyaWFub21hbmNpbmlAbWFpbC5pdCIsImlhdCI6MTUxNjIzOTAyMn0.eX5x1ww9oakJyexsd87nptnrXM6OsLZIv2UhciCtwZo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{   \r\n    \"game_type\": \"multiplayer\",\r\n    \"silent_mode\": false,\r\n    \"opponent\" : \"opponent@mail.it\",\r\n    \"grid_size\" : 4,\r\n    \"silences\" : 0,\r\n    \"ships\" : [\r\n        {\r\n            \"size\": 3\r\n        },\r\n        {\r\n            \"size\": 1\r\n        },\r\n        {\r\n            \"size\": 2\r\n        }\r\n\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/creategame",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"creategame"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Attack",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoidXNlciIsImVtYWlsIjoiYWRyaWFub21hbmNpbmlAbWFpbC5pdCIsImlhdCI6MTUxNjIzOTAyMn0.eX5x1ww9oakJyexsd87nptnrXM6OsLZIv2UhciCtwZo",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"x\": 1,\r\n    \"y\": 1,\r\n    \"silence\": false\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/:id/attack",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						":id",
+						"attack"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "3"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
