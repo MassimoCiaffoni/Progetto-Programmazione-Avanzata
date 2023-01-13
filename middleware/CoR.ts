@@ -41,6 +41,7 @@ export const checkGameCreation = [
 
 export const checkGameExistence = [
     valMiddleware.GameExistence,
+    valMiddleware.CheckUserOnGame,
     errorHandler.errorHandler
 ]
 
