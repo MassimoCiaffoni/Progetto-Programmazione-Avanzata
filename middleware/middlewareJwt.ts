@@ -3,11 +3,16 @@ require('dotenv').config();
 import * as jwt from 'jsonwebtoken';
 import {ErrorMsgEnum} from "../factory/ErrMsg";
 
-export const requestTime = (req: any,res: any,next: any) =>{
-    req.requestTime = Date.now();
-    next();
-};
 
+/**
+ * Middleware layer 'checkHeader'
+ * 
+ * Check if request header has authorization.
+ * 
+ * @param req Client request
+ * @param res Server response
+ * @param next Calls the next middleware layer   
+ */
 export const checkHeader = (req: any, res: any, next: any) => {    
     const authHeader = req.headers.authorization;
     if(authHeader){
@@ -17,6 +22,15 @@ export const checkHeader = (req: any, res: any, next: any) => {
     }   
 };
 
+/**
+ * Middleware layer 'checkToken'
+ * 
+ * Check if token from request header exists. 
+ * 
+ * @param req Client request
+ * @param res Server response
+ * @param next Calls the next middleware layer   
+ */
 export const checkToken = (req: any, res: any, next: any) => {
     try{
     const bearerHeader = req.headers.authorization;
@@ -30,6 +44,15 @@ export const checkToken = (req: any, res: any, next: any) => {
     }    
 };
 
+/**
+ * Middleware layer 'verifyAndAuthenticate'
+ * 
+ * Check token key and decode payload 
+ * 
+ * @param req Client request
+ * @param res Server response
+ * @param next Calls the next middleware layer   
+ */
 export const verifyAndAuthenticate = (req: any, res: any, next: any) => {
     try{
         let decoded = jwt.verify(req.token, process.env.SECRET_KEY!);

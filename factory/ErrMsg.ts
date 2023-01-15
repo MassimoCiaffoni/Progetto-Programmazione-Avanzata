@@ -237,6 +237,14 @@ export enum ErrorMsgEnum {
     GameFinished,
 }
 
+/**
+ * Function 'getErrorMsg'
+ * 
+ * Function invoked by the Chain of Responsability middleware layers or controller when a route ends with an error.
+ * 
+ * @param type Type of the error message obtained one of the values of the {@link ErrorMsgEnum}
+ * @returns An object of the {@link Msg} interface representing an error message. 
+ */
 
 export function getErrorMsg(type: ErrorMsgEnum): Msg{
     let msgerr: Msg;

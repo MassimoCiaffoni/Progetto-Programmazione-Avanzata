@@ -6,6 +6,11 @@ import { ErrorMsgEnum, getErrorMsg } from '../factory/ErrMsg';
 // Connection to database
 const sequelize: Sequelize = DBConnection.getInstance()
 
+/**
+ * Model 'User'
+ * 
+ * Define the model 'User' to interface with the "users" table in the PostgreSQL database
+ */
 export const User = sequelize.define('users', {
     email: {
         type: DataTypes.STRING,
@@ -35,9 +40,9 @@ export const User = sequelize.define('users', {
 
 
 /**
- * Verify User.
- * @param email mail of the player.
- * @returns  result.
+ * Verify User in database.
+ * @param email Mail of the player.
+ * @returns  Result.
  */
 export async function CheckUser(email:string):Promise<any> {
     let result:any;
@@ -51,8 +56,8 @@ export async function CheckUser(email:string):Promise<any> {
 
 /**
  * Check if the users exists and the request is done by the admin.
- * @param chargedata body of the request.
- * @returns boolean value.
+ * @param chargedata Body of the request.
+ * @returns Boolean value.
  */
 export async function TokenChargeVal(chargedata:any): Promise<any> {
     const admin= await CheckUser(chargedata.username_admin.email).then((user)=>{

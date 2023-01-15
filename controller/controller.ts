@@ -13,12 +13,31 @@ import { SinglePlayerEnum, MultiPlayerEnum } from "../utils/Modes";
 
 const sequelize: Sequelize = DBConnection.getInstance();
 
+/**
+ * Function 'controllerErrors'
+ * 
+ * Function to send controller errors.
+ * If one of the controller functions try statement fail the server response with internal error.
+ * 
+ * @param error Error message.
+ * @param res Server response
+ */
 export function controllerErrors(error:any,res: any) {
+    console.log(error)
     const new_err_msg = getErrorMsg(ErrorMsgEnum.InternalServerError).getMsg();
     res.status(new_err_msg.status).json(new_err_msg);
 }
 
-
+/**
+ * Function 'CreateNewGame'
+ * 
+ * Function to create a new game.
+ * Generate Grid structure with board and placed ships and insert a new game on the database.
+ * Decrement creator tokens and set player's on_game values true.
+ * 
+ * @param req Client request
+ * @param res Server response
+ */
 export async function CreateNewGame(req: any, res: any): Promise<void>{
     try {
         await GameClass.Game.create({game_type: req.body.game_type, silent_mode: req.body.silent_mode, creator: {name: req.body.creator, silent_use: false}, 
@@ -43,6 +62,14 @@ export async function CreateNewGame(req: any, res: any): Promise<void>{
     
 }
 
+/**
+ * Function 'ChargeUser'
+ * 
+ * Function used by admin to charge on user with tokens.
+ * 
+ * @param req Client request
+ * @param res Server response
+ */
 export async function ChargeUser(req: any, res: any) {
     try {        
         User.increment(['tokens'], { by: req.body.value, where: { email: req.body.destination_user } })
@@ -56,6 +83,14 @@ export async function ChargeUser(req: any, res: any) {
     }
 }
 
+/**
+ * Function 'GetGameStatus'
+ * 
+ * Function that display current game state.
+ * 
+ * @param req Client request
+ * @param res Server response
+ */
 export async function GetGameStatus(req: any, res:any){
     const id = req.params.id;
     try {
@@ -74,7 +109,14 @@ export async function GetGameStatus(req: any, res:any){
     }
 }
 
-
+/**
+ * Function 'GetGameStatus'
+ * 
+ * Function that display current game moves on CSV format.
+ * 
+ * @param req Client request
+ * @param res Server response
+ */
 export async function GetHistory(req: any, res:any){
     const id = req.params.id;
     try {
@@ -84,7 +126,7 @@ export async function GetHistory(req: any, res:any){
     }).then((game)=>{
         const moves = game.moves;
         const fields = Object.keys(moves[0]);
-        const csv = moves.map((row: any) => fields.map((fieldname:any) => JSON.stringify(row[fieldname])).join(','))// => JSON.stringify(row[fieldName], replacer)).join(','));
+        const csv = moves.map((row: any) => fields.map((fieldname:any) => JSON.stringify(row[fieldname])).join(','))
         csv.unshift(fields.join(','));
         let message =csv.join('\r\n');
         res.header("Content-Type", "text/csv");
@@ -98,24 +140,33 @@ export async function GetHistory(req: any, res:any){
     }
 }
 
+/**
+ * Function 'UseMove'
+ * 
+ * Function that perform an attack.
+ * Change attacked player board structure and check if the game is finished.
+ * 
+ * @param req Client request
+ * @param res Server response
+ */
 export async function UseMove(req: any, res: any) {
     try{
-        console.log("Dentro controller")
         let silence = req.body.silence;
         User.decrement(['tokens'], {by: 0.015, where: {email: req.body.player}}); 
         await GameClass.Game.findOne({where: {game_id: req.params.id}}).then((game: any)=>{
             if(game.game_type in MultiPlayerEnum){
+                // Chekck if silence move is used
                 if (req.body.player == game.creator.name){
                     if (silence){
-                        console.log("Cambio silent move")
                         GameClass.Game.update({creator: {name: game.creator.name, silent_use: true}},{where: {game_id: req.params.id}})
                     }
                     Grid.markHit(req.body.x, req.body.y,game.opponent_grid.board);
                     GameClass.Game.update({opponent_grid: game.opponent_grid},{where: {game_id: req.params.id}})
                     GameClass.Game.update({turn: game.opponent.name},{where: {game_id: req.params.id}})
-                    if(Grid.checkShip(req.body.x, req.body.y,game.opponent_grid.board)){                       
+                    // Check if the attack hit an enemy ship
+                    if(Grid.checkShip(req.body.x, req.body.y,game.opponent_grid.board)){   
+                        // Check if the game is finished                    
                         if (Grid.isGameFinished(game.opponent_grid.board)){
-                            // inserire update dello storico delle mosse oscurate dal silence
                             let final_moves=Grid.ChangeSilentMoves(game.moves);
                             GameClass.Game.update({moves: final_moves},{where: {game_id: req.params.id}})  
                             GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:req.body.x,y:req.body.y,player:game.creator.name,hashitted: true}))},
@@ -147,7 +198,6 @@ export async function UseMove(req: any, res: any) {
                     }
                     else{
                         if(game.opponent.silent_use){
-                            // INSERIRE MOSSA ANONIMA NELL'ARRAY
                             GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:req.body.x,y:req.body.y,player:game.creator.name,hashitted: "silence",raw:false}))},
                                 {where: {game_id: req.params.id}});
                             GameClass.Game.update({opponent: {name: game.opponent.name,silent_use: false}},{where: {game_id: req.params.id}})
@@ -165,17 +215,19 @@ export async function UseMove(req: any, res: any) {
                     }
                 }
                 else if (req.body.player == game.opponent.name){
+                    // Chekck if silence move is used
                     if (silence){
                         GameClass.Game.update({opponent: {name: game.opponent.name, silent_use: true}},{where: {game_id: req.params.id}})
                     }
                     Grid.markHit(req.body.x, req.body.y,game.creator_grid.board);
                     GameClass.Game.update({creator_grid: game.creator_grid},{where: {game_id: req.params.id}})
                     GameClass.Game.update({turn: game.creator.name},{where: {game_id: req.params.id}})
+                    // Check if the attack hit an enemy ship
                     if(Grid.checkShip(req.body.x, req.body.y,game.creator_grid.board)){
+                        // Check if the game is finished  
                         if (Grid.isGameFinished(game.creator_grid.board)){     
                             GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:req.body.x,y:req.body.y,player:game.opponent.name,hashitted: true}))},
                                 {where: {game_id: req.params.id}});  
-                            //inserisci funzione modifica hit del silence
                             let final_moves=Grid.ChangeSilentMoves(game.moves);
                             GameClass.Game.update({moves: final_moves},{where: {game_id: req.params.id}})                 
                             GameClass.Game.update({state: 'Finished', winner: game.opponent.name},{where: {game_id: req.params.id}})
@@ -222,14 +274,17 @@ export async function UseMove(req: any, res: any) {
                     }
                 }
             }
+            // Player attack and AI move on singleplayer mode
             if(game.game_type in SinglePlayerEnum){
                 if (req.body.player == game.creator.name){
                     Grid.markHit(req.body.x, req.body.y,game.opponent_grid.board);
                     GameClass.Game.update({opponent_grid: game.opponent_grid},{where: {game_id: req.params.id}})
                     GameClass.Game.update({turn: game.opponent.name},{where: {game_id: req.params.id}})
+                    // Check if the attack hit an enemy ship
                     if(Grid.checkShip(req.body.x, req.body.y,game.opponent_grid.board)){
                         GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:req.body.x,y:req.body.y,player:game.creator.name,hashitted: true}))},
                             {where: {game_id: req.params.id}});
+                        // Check if the game is finished      
                         if (Grid.isGameFinished(game.opponent_grid.board)){
                             GameClass.Game.update({state: 'Finished', winner: game.creator.name},{where: {game_id: req.params.id}})
                             UserClass.User.update({on_game: false},{where: {email: game.creator.name}})
@@ -242,7 +297,7 @@ export async function UseMove(req: any, res: any) {
                             const response  = getSuccessMsg(SuccessMsgEnum.CorrectCharge).getMsg(); //modifica con messaggio corretto ship hitted
                             res.header("Content-Type", "application/json");
                             res.status(response.status).json({Message: "Ship hitted", Value:req.body.value})
-                            console.log("Mossa dell'AI")
+                            console.log("AI move")
                             User.decrement(['tokens'], {by: 0.015, where: {email: game.opponent.name}});
                             const x_value = Math.floor(Math.random() * game.grid_size);
                             const y_value = Math.floor(Math.random() * game.grid_size);
@@ -250,9 +305,11 @@ export async function UseMove(req: any, res: any) {
                             console.log(game.creator_grid.board)
                             GameClass.Game.update({creator_grid: game.creator_grid},{where: {game_id: req.params.id}})
                             GameClass.Game.update({turn: game.creator.name},{where: {game_id: req.params.id}})
+                            // Check if the AI attack hit an player ship
                             if(Grid.checkShip(x_value,y_value,game.creator_grid.board)){
                                 GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:x_value,y:y_value,player:game.opponent.name,hashitted: true}))},
                                     {where: {game_id: req.params.id}});
+                                // Check if the game is finished  
                                 if (Grid.isGameFinished(game.creator_grid.board)){
                                     GameClass.Game.update({state: 'Finished', winner: game.opponent.name},{where: {game_id: req.params.id}})
                                     UserClass.User.update({on_game: false},{where: {email: game.creator.name}})
@@ -271,7 +328,7 @@ export async function UseMove(req: any, res: any) {
                         const response  = getSuccessMsg(SuccessMsgEnum.CorrectCharge).getMsg();
                         res.header("Content-Type", "application/json");
                         res.status(response.status).json({Message: "You didnt hit the enemy ship", Value:req.body.value})
-                        console.log("Mossa dell'AI")
+                        console.log("AI move")
                         User.decrement(['tokens'], {by: 0.015, where: {email: game.opponent.name}});
                         const x_value = Math.floor(Math.random() * game.grid_size);
                         const y_value = Math.floor(Math.random() * game.grid_size);
@@ -279,9 +336,11 @@ export async function UseMove(req: any, res: any) {
                         console.log(game.creator_grid.board)
                         GameClass.Game.update({creator_grid: game.creator_grid},{where: {game_id: req.params.id}})
                         GameClass.Game.update({turn: game.creator.name},{where: {game_id: req.params.id}})
+                        // Check if the AI attack hit an player ship
                         if(Grid.checkShip(x_value,y_value,game.creator_grid.board)){
                             GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:x_value,y:y_value,player:game.opponent.name,hashitted: true}))},
                                 {where: {game_id: req.params.id}});
+                            // Check if the game is finished  
                             if (Grid.isGameFinished(game.creator_grid.board)){
                                 GameClass.Game.update({state: 'Finished', winner: game.opponent.name},{where: {game_id: req.params.id}})
                                 UserClass.User.update({on_game: false},{where: {email: game.creator.name}})

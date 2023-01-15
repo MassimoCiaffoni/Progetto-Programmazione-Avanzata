@@ -14,7 +14,10 @@ const HOST = '0.0.0.0';
 const app = express();
 app.use(express.json());
 
+// Token Validation
 app.use(CoR.jwt);
+
+// Check token payload
 app.use(CoR.jwtPayload)
 
 //POST route to charge token to specified user (admin route)
@@ -35,7 +38,7 @@ app.post('/:id/attack',CoR.checkAttack, (req: any, res: any) => {
 });
 
 
-//GET basic route
+//GET basic route to check service
 app.get('/', (req: any,res: any) => {
     const res_msg = getSuccessMsg(SuccessMsgEnum.AppStarted).getMsg();   
     res.status(res_msg.status).json({Message:res_msg.msg})
@@ -53,5 +56,6 @@ app.get('/:id/history',CoR.checkGameExistence, (req: any,res: any) => {
     controller.GetHistory(req,res);
 });
 
+// Server Startup
 app.listen(PORT, HOST);
 console.log(`Server started on port ${PORT}`);

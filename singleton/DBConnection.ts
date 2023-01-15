@@ -1,7 +1,12 @@
 // Import libraries
 import {Sequelize} from 'sequelize';
 
-
+/**
+ * Class 'DBConnection'
+ * 
+ * Class that ensures that the database connection through the library {@link Sequelize} is unique,
+ * thus ensuring a single connection to the PostgreSQL database.
+ */
 export class DBConnection {
 
     private static instance: DBConnection;

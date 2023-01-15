@@ -57,7 +57,14 @@ export enum SuccessMsgEnum {
     Winner,
 }
 
-
+/**
+ * Function 'getSuccessMsg'
+ * 
+ * Function invoked by the controller when successfully ending a route.
+ * 
+ * @param type Type of the success message obtained one of the values of the {@link SuccessMsgEnum}
+ * @returns An object of the {@link Msg} interface representing a success message.
+ */
 export function getSuccessMsg(type: SuccessMsgEnum): Msg{
     let corrmsg: Msg;
     switch(type){

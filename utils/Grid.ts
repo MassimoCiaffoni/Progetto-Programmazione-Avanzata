@@ -2,13 +2,13 @@ import { ModelValidateOptions } from "sequelize";
 
 /**
  * The function create a player grid where all the ship will be placed randomly. Every cell has property hit and occupied.
- * @param size The size of the board structure to create.
+ * @param boardSize The size of the board structure to create.
  * @returns The board structure.
  */
- export function generateBoard(Boardsize: number): {x: number, y: number, hit: boolean, occupied: boolean}[] {
+ export function generateBoard(boardSize: number): {x: number, y: number, hit: boolean, occupied: boolean}[] {
     const board: {x: number, y: number, hit: boolean, occupied: boolean}[] = [];
-    for (let i = 0; i < Boardsize; i++) {
-      for (let j = 0; j < Boardsize; j++) {
+    for (let i = 0; i < boardSize; i++) {
+      for (let j = 0; j < boardSize; j++) {
         board.push({x: i, y: j, hit: false, occupied: false});
       }
     }
@@ -16,7 +16,12 @@ import { ModelValidateOptions } from "sequelize";
   }
 
 
-// Chiedere correttezza poiché vertical sono calcolate in modo tale che occupano anche la cella della righa
+/**
+ * The function check if an array of ships with different size can be placed in a board of given length.
+ * @param boardSize The size of the board structure.
+ * @param ships The arry of ships to insert into the board.
+ * @returns Boolean value of the control.
+ */
  export function canPlaceShips(boardSize: number, ships: any): boolean {
     let occupiedCellsHorizontal = 0;
     let occupiedCellsVertical = 0;
@@ -33,10 +38,10 @@ import { ModelValidateOptions } from "sequelize";
 /**
  * The function place all the ships inside the board and return the final grid structure with board and ships.
  *  If a cell is already occupied or position exceeds board limit the function try new placement.
- * @param boardSize the size of the board structure.
- * @param board the board data structure.
- * @param ships the ship array [{size: number},...].
- * @returns a structure with both board data and ships list with their position.
+ * @param boardSize The size of the board structure.
+ * @param board The board data structure.
+ * @param ships The ship array [{size: number},...].
+ * @returns A structure with both board data and ships list with their position.
  */
   export function placeShips(boardSize: number, board: any[], ships: any[]): {board: any[], placedShips: any[]} {
     const placedShips = [];
@@ -96,7 +101,7 @@ import { ModelValidateOptions } from "sequelize";
  * @param boardSize The size of the board.
  * @param x Given x coordinate.
  * @param y Given y coordinate.
- * @returns boolean value 
+ * @returns Boolean value of the check.
  */
 export function isValidAttack(boardSize: number, x: number, y: number): boolean {
     return x >= 0 && x < boardSize && y >= 0 && y < boardSize;
@@ -105,8 +110,8 @@ export function isValidAttack(boardSize: number, x: number, y: number): boolean 
 
   /**
    * The function check if all ship are being destroyed and the game is finished.
-   * @param board the board data structure to check.
-   * @returns a boolean representing if all ships are destroyed.
+   * @param board The board data structure to check.
+   * @returns A boolean representing if all ships are destroyed.
    */
   export function isGameFinished(board: any): boolean {
     for (const element of board) {
@@ -121,10 +126,10 @@ export function isValidAttack(boardSize: number, x: number, y: number): boolean 
   /**
    * The function check if the attack is already have been done once. 
    * If it return false the client will get an error message.
-   * @param x coordinate of the attack.
-   * @param y coordinate of the attack.
-   * @param board board structure of the considered player.
-   * @returns boolean value.
+   * @param x Coordinate of the attack.
+   * @param y Coordinate of the attack.
+   * @param board Board structure of the considered player.
+   * @returns Boolean value.
    */
 export function alreadyHit(x: number, y: number, board: any): boolean {
     for (let i = 0; i < board.length; i++) {
@@ -138,11 +143,10 @@ export function alreadyHit(x: number, y: number, board: any): boolean {
 }
 
 /**
- * 
- * @param x coordinate of the attack
- * @param y coordinate of the attack
- * @param board the board data structure
- * The function after an attack modify hit property of json object set in coordinate grid
+ * The function after an attack modify hit property of json object set in coordinate grid.
+ * @param x Coordinate of the attack.
+ * @param y Coordinate of the attack.
+ * @param board The board data structure.
  */
 export function markHit(x: number, y: number, board:any): void {
   for (let i = 0; i < board.length; i++) {
@@ -154,10 +158,10 @@ export function markHit(x: number, y: number, board:any): void {
 
 /**
  * The function check if an attack hit an enemy ship.
- * @param x coordinate of the attack.
- * @param y coordinate of the attack.
- * @param board enemy player board structure.
- * @returns boolean value.
+ * @param x Coordinate of the attack.
+ * @param y Coordinate of the attack.
+ * @param board Enemy player board structure.
+ * @returns Boolean value of the control.
  */
 export function checkShip(x: number, y: number, board: any): boolean {
   for (let i = 0; i < board.length; i++) {
@@ -172,8 +176,8 @@ export function checkShip(x: number, y: number, board: any): boolean {
 
 
 /** In case of silent mode after the game is finished all silent moves on history are replaced with real result.
- * @param moves array of all the moves of the game.
- * @returns modified moves array.
+ * @param moves Array of all the moves of the game.
+ * @returns Modified moves array.
  */
 export function ChangeSilentMoves(moves: any[]){
   console.log(moves)

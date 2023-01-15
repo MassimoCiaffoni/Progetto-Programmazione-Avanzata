@@ -7,7 +7,16 @@ import { SinglePlayerEnum, MultiPlayerEnum } from "../utils/Modes";
 
 
 
-
+/**
+ * Middleware layer 'ChargeUserVal'
+ * 
+ * Check if the JSON body of charge route is correct. 
+ * The function check value types and control if users exists and request is valid (user is admin).
+ * 
+ * @param req Client request
+ * @param res Server response
+ * @param next Calls the next middleware layer   
+ */
 export async function ChargeUserVal(req:any,res:any,next:any)  {
     try{
         req.body.username_admin = req.user;
@@ -22,11 +31,20 @@ export async function ChargeUserVal(req:any,res:any,next:any)  {
     }
 };
 
-
+/**
+ * Middleware layer 'GameVal'
+ * 
+ * Check if the Game can be created.
+ * The function check creator type and values relations.
+ * 
+ * @param req Client request
+ * @param res Server response
+ * @param next Calls the next middleware layer   
+ */
 export async function GameVal(req:any,res:any,next:any)  {
     try{
         req.body.creator = req.user.email;
-        if(typeof req.body.creator =="string" && typeof req.body.opponent =="string" ){
+        if(typeof req.body.creator =="string"){
             let responseVal = await GameClass.CreateGameVal(req.body);
             responseVal === true ? next() : next(responseVal)
         }else{
@@ -37,6 +55,15 @@ export async function GameVal(req:any,res:any,next:any)  {
     }
 };
 
+/**
+ * Middleware layer 'PlyersVal'
+ * 
+ * Check if the players of a new game are already occupied in an existing game.
+ * 
+ * @param req Client request
+ * @param res Server response
+ * @param next Calls the next middleware layer   
+ */
 export async function PlayersVal(req:any,res:any,next:any) {
     try{
         if (req.body.game_type in MultiPlayerEnum){
@@ -79,6 +106,15 @@ export async function PlayersVal(req:any,res:any,next:any) {
     }
 }
 
+/**
+ * Middleware layer 'BodyNewGame'
+ * 
+ * Check if the creator has enough tokens to create a new game.
+ * 
+ * @param req Client request
+ * @param res Server response
+ * @param next Calls the next middleware layer   
+ */
 export async function PlayerToken(req:any,res:any,next:any) {
     try{
         await UserClass.User.findOne({
@@ -97,10 +133,18 @@ export async function PlayerToken(req:any,res:any,next:any) {
         next(ErrorMsgEnum.InternalServerError)
     }
 }
- 
+
+/**
+ * Middleware layer 'GameExistence'
+ * 
+ * Check if game data requested (state or history) exist in the database.
+ * 
+ * @param req Client request
+ * @param res Server response
+ * @param next Calls the next middleware layer   
+ */
 export async function GameExistence(req:any,res:any,next:any) {
     try{
-        console.log("Dentro Game Existence")
         let itExist = await GameClass.Game.findOne({
             where: {game_id: req.params.id}
         });
@@ -116,7 +160,15 @@ export async function GameExistence(req:any,res:any,next:any) {
 }
 
 
-
+/**
+ * Middleware layer 'PlaceShipVal'
+ * 
+ * Check if the array of ships on the request body can be placed on the board size of the request body.
+ * 
+ * @param req Client request
+ * @param res Server response
+ * @param next Calls the next middleware layer   
+ */
 export async function PlaceShipVal(req:any,res:any,next:any) {
     try{
         if (Grid.canPlaceShips(req.body.grid_size, req.body.ships)) {
@@ -129,7 +181,15 @@ export async function PlaceShipVal(req:any,res:any,next:any) {
     }
 }
 
-
+/**
+ * Middleware layer 'CoordinatesVal'
+ * 
+ * Check if the JSON body of attack is correct controlling if the coordinates exists on the board.
+ * 
+ * @param req Client request
+ * @param res Server response
+ * @param next Calls the next middleware layer   
+ */
 export async function CoordinatesVal(req:any,res:any,next:any) {
     try{
         let x: number = req.body.x
@@ -152,7 +212,15 @@ export async function CoordinatesVal(req:any,res:any,next:any) {
 }
 
 
-
+/**
+ * Middleware layer 'TurnVal'
+ * 
+ * Check if the player requesting the attack is the one on turn in the game.
+ * 
+ * @param req Client request
+ * @param res Server response
+ * @param next Calls the next middleware layer   
+ */
 export async function TurnVal(req:any,res:any,next:any) {
     try{
         await GameClass.Game.findOne({
@@ -171,6 +239,15 @@ export async function TurnVal(req:any,res:any,next:any) {
     }    
 }
 
+/**
+ * Middleware layer 'CheckUserOnGame'
+ * 
+ * Check if the player requesting an attack, state or history of the game is one of the two players.
+ * 
+ * @param req Client request
+ * @param res Server response
+ * @param next Calls the next middleware layer   
+ */
 export async function CheckUserOnGame(req:any,res:any,next:any) {
     try{
         req.body.player = req.user.email;
@@ -190,7 +267,16 @@ export async function CheckUserOnGame(req:any,res:any,next:any) {
     }   
 }
 
-
+/**
+ * Middleware layer 'CheckMode'
+ * 
+ * Check if a player can use a silence move and decrement his silences moves. 
+ * If the mode is not setted or the silences are finished return an {@link ErrorMsgEnum}. 
+ * 
+ * @param req Client request
+ * @param res Server response
+ * @param next Calls the next middleware layer   
+ */
 export async function CheckMode(req:any,res:any,next:any) {
     try{
         console.log(req.params.id)
@@ -235,7 +321,17 @@ export async function CheckMode(req:any,res:any,next:any) {
         next(ErrorMsgEnum.InternalServerError)
     }
 }
-    
+
+
+/**
+ * Middleware layer 'AttackAlreadyDone'
+ * 
+ * Check if the player attack has been done already once.
+ * 
+ * @param req Client request
+ * @param res Server response
+ * @param next Calls the next middleware layer   
+ */
 export async function AttackAlreadyDone(req:any,res:any,next:any) {
     try{
         await GameClass.Game.findOne({
@@ -268,7 +364,15 @@ export async function AttackAlreadyDone(req:any,res:any,next:any) {
     }
 }
 
-
+/**
+ * Middleware layer 'BodyNewGame'
+ * 
+ * Check if the game is already finished so a player cannot do more attacks.
+ * 
+ * @param req Client request
+ * @param res Server response
+ * @param next Calls the next middleware layer   
+ */
 export async function CheckGameState(req:any,res:any,next:any) {
     try{
         await GameClass.Game.findOne({
