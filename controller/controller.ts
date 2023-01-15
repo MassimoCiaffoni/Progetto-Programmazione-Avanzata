@@ -167,10 +167,10 @@ export async function UseMove(req: any, res: any) {
                     if(Grid.checkShip(req.body.x, req.body.y,game.opponent_grid.board)){   
                         // Check if the game is finished                    
                         if (Grid.isGameFinished(game.opponent_grid.board)){
-                            let final_moves=Grid.ChangeSilentMoves(game.moves);
-                            GameClass.Game.update({moves: final_moves},{where: {game_id: req.params.id}})  
                             GameClass.Game.update({moves:Sequelize.fn('array_append', Sequelize.col('moves'),JSON.stringify({x:req.body.x,y:req.body.y,player:game.creator.name,hashitted: true}))},
                                 {where: {game_id: req.params.id}});
+                            let final_moves=Grid.ChangeSilentMoves(game.moves);
+                            GameClass.Game.update({moves: final_moves},{where: {game_id: req.params.id}})                             
                             GameClass.Game.update({state: 'Finished', winner: game.creator.name},{where: {game_id: req.params.id}})
                             UserClass.User.update({on_game: false},{where: {email: game.creator.name}})
                             UserClass.User.update({on_game: false},{where: {email: game.opponent.name}})
